@@ -33,21 +33,21 @@ export function TutorialModal() {
           <DialogTitle className="text-center text-2xl">
             Welcome to HostelBites!
           </DialogTitle>
-          <DialogDescription className="text-center space-y-3 pt-4">
-            <p className="text-base">
-              Track your meal attendance for Breakfast, Lunch, and Dinner.
-            </p>
-            <p>
-              <strong>How to use:</strong>
-            </p>
-            <ol className="text-left space-y-2 pl-4">
-              <li>1. Search for your name in any meal section</li>
-              <li>2. Click "I've eaten" after you finish your meal</li>
-              <li>3. See real-time updates of who's eaten</li>
-              <li>4. Data auto-resets at midnight daily</li>
-            </ol>
-          </DialogDescription>
         </DialogHeader>
+        <DialogDescription className="text-center space-y-3 pt-4">
+          <p className="text-base">
+            Track your meal attendance for Breakfast, Lunch, and Dinner.
+          </p>
+          <div>
+            <p className="font-semibold mb-2">How to use:</p>
+            <ol className="text-left space-y-2 pl-4 list-decimal">
+              <li>Search for your name in any meal section</li>
+              <li>Click "I've eaten" after you finish your meal</li>
+              <li>See real-time updates of who's eaten</li>
+              <li>Data auto-resets at midnight daily</li>
+            </ol>
+          </div>
+        </DialogDescription>
         <Button onClick={handleClose} className="w-full" data-testid="button-close-tutorial">
           Got it!
         </Button>

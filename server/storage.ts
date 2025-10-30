@@ -11,6 +11,9 @@ export interface IStorage {
   resetMeal(meal: MealType): Promise<StatusResponse>;
   resetAll(): Promise<StatusResponse>;
   getPresetNames(): Promise<string[]>;
+  addName(name: string): Promise<string[]>;
+  updateName(oldName: string, newName: string): Promise<string[]>;
+  deleteName(name: string): Promise<string[]>;
   exportCSV(): Promise<string>;
   getBackupData(): Promise<{ names: string[]; data: DataStructure }>;
 }
@@ -131,6 +134,85 @@ export class MemStorage implements IStorage {
 
   async getPresetNames(): Promise<string[]> {
     return this.loadNames();
+  }
+
+  private saveNames(names: string[]): void {
+    writeFileSync(NAMES_FILE, JSON.stringify(names, null, 2), "utf-8");
+  }
+
+  async addName(name: string): Promise<string[]> {
+    const names = this.loadNames();
+    const trimmedName = name.trim();
+    
+    if (!trimmedName) {
+      throw new Error("Name cannot be empty");
+    }
+    
+    if (names.includes(trimmedName)) {
+      throw new Error("Name already exists");
+    }
+    
+    names.push(trimmedName);
+    names.sort();
+    this.saveNames(names);
+    return names;
+  }
+
+  async updateName(oldName: string, newName: string): Promise<string[]> {
+    const names = this.loadNames();
+    const data = this.loadData();
+    const trimmedNewName = newName.trim();
+    
+    if (!trimmedNewName) {
+      throw new Error("Name cannot be empty");
+    }
+    
+    const index = names.indexOf(oldName);
+    if (index === -1) {
+      throw new Error("Name not found");
+    }
+    
+    if (oldName !== trimmedNewName && names.includes(trimmedNewName)) {
+      throw new Error("New name already exists");
+    }
+    
+    // Update in names list
+    names[index] = trimmedNewName;
+    names.sort();
+    this.saveNames(names);
+    
+    // Update in meal data
+    for (const meal of ["Breakfast", "Lunch", "Dinner"] as MealType[]) {
+      const mealIndex = data.meals[meal].eaten.indexOf(oldName);
+      if (mealIndex !== -1) {
+        data.meals[meal].eaten[mealIndex] = trimmedNewName;
+      }
+    }
+    this.saveData(data);
+    
+    return names;
+  }
+
+  async deleteName(name: string): Promise<string[]> {
+    const names = this.loadNames();
+    const data = this.loadData();
+    
+    const index = names.indexOf(name);
+    if (index === -1) {
+      throw new Error("Name not found");
+    }
+    
+    // Remove from names list
+    names.splice(index, 1);
+    this.saveNames(names);
+    
+    // Remove from meal data
+    for (const meal of ["Breakfast", "Lunch", "Dinner"] as MealType[]) {
+      data.meals[meal].eaten = data.meals[meal].eaten.filter(n => n !== name);
+    }
+    this.saveData(data);
+    
+    return names;
   }
 
   async exportCSV(): Promise<string> {

@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { MealCard } from "@/components/MealCard";
 import { TutorialModal } from "@/components/TutorialModal";
+import { ManageNamesModal } from "@/components/ManageNamesModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { StatusResponse, Vote, MealType } from "@shared/schema";
-import { Download, FileDown } from "lucide-react";
+import { Download, FileDown, Users } from "lucide-react";
 
 const mealConfig = {
   Breakfast: { emoji: "🥐", accentColor: "10 80% 65%" },
@@ -15,6 +17,7 @@ const mealConfig = {
 };
 
 export default function Home() {
+  const [showManageNames, setShowManageNames] = useState(false);
   const { toast } = useToast();
 
   const { data: status, isLoading } = useQuery<StatusResponse>({
@@ -89,8 +92,9 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-mint-50 dark:from-[hsl(280,35%,12%)] dark:to-[hsl(260,40%,8%)] p-6">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-cyan-100 dark:from-[hsl(280,35%,12%)] dark:to-[hsl(260,40%,8%)] p-6 animate-gradient">
       <TutorialModal />
+      <ManageNamesModal open={showManageNames} onOpenChange={setShowManageNames} />
       
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
@@ -106,6 +110,16 @@ export default function Home() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3 justify-center">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setShowManageNames(true)}
+            data-testid="button-manage-names"
+            className="font-semibold"
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Manage Names
+          </Button>
           <Button
             variant="outline"
             size="sm"
