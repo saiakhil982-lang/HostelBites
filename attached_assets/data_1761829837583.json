@@ -1,0 +1,14 @@
+{
+  "meals": {
+    "Breakfast": {
+      "eaten": []
+    },
+    "Lunch": {
+      "eaten": []
+    },
+    "Dinner": {
+      "eaten": []
+    }
+  },
+  "last_reset": "2025-10-30T09:43:06.772Z"
+}
