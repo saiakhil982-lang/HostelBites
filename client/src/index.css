@@ -361,3 +361,132 @@
     inset: -1px;
   }
 }
+
+/* Animated background gradient used on the main page */
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradientShift 12s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Title shimmer */
+.title-shimmer {
+  background: linear-gradient(90deg, #E91E63, #8A5CFF, #33D1FF, #E91E63);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textShimmer 5s ease-in-out infinite;
+}
+
+@keyframes textShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Heart shower effect */
+.heart-shower {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+.heart-shower .heart {
+  position: absolute;
+  font-size: 16px;
+  animation: heartFloat 1.8s ease-in forwards;
+}
+@keyframes heartFloat {
+  0% { opacity: 0; transform: translateY(0) scale(0.8) rotate(0deg); }
+  10% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-140px) scale(1.2) rotate(20deg); }
+}
+
+/* Floating petals */
+.petals {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+}
+.petal {
+  position: absolute;
+  animation: petalFloat 10s ease-in-out infinite;
+  opacity: .75;
+}
+@keyframes petalFloat {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); }
+  50% { transform: translateY(-15px) translateX(10px) rotate(6deg); }
+  100% { transform: translateY(0) translateX(0) rotate(0deg); }
+}
+
+/* Stars */
+.stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 35;
+}
+.star {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #fff 0%, #ffd6f0 60%, transparent 70%);
+  box-shadow: 0 0 12px rgba(255, 220, 255, .8);
+  animation: starTwinkle 2.4s ease-in-out infinite, starDrift 14s ease-in-out infinite;
+}
+@keyframes starTwinkle {
+  0%, 100% { transform: scale(1); opacity: .5; }
+  50% { transform: scale(1.5); opacity: 1; }
+}
+@keyframes starDrift {
+  0% { transform: translateX(0) translateY(0); }
+  50% { transform: translateX(8px) translateY(-8px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+/* Gentle pop on cards/buttons */
+.pop-hover:hover { transform: translateY(-4px) scale(1.01); transition: transform .25s ease, box-shadow .25s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Allow forcing animations even if system prefers-reduced-motion */
+.force-animate *, .force-animate {
+  animation-duration: initial !important;
+  animation-iteration-count: initial !important;
+  transition-duration: initial !important;
+}
+
+/* Shimmering gradient text + glow for the heading */
+.text-gradient {
+  background: linear-gradient(90deg, #ff6aa5, #8a5cff, #33d1ff, #ff6aa5);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textGradientShift 6s ease infinite;
+}
+
+.text-glow {
+  text-shadow: 0 2px 12px rgba(138, 92, 255, 0.35), 0 0 24px rgba(51, 209, 255, 0.25);
+}
+
+@keyframes textGradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

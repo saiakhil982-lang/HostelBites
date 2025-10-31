@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { MealCard } from "@/components/MealCard";
 import { TutorialModal } from "@/components/TutorialModal";
@@ -11,9 +11,9 @@ import type { StatusResponse, Vote, MealType } from "@shared/schema";
 import { Download, FileDown, Users } from "lucide-react";
 
 const mealConfig = {
-  Breakfast: { emoji: "🥐", accentColor: "10 80% 65%" },
-  Lunch: { emoji: "🍱", accentColor: "270 50% 65%" },
-  Dinner: { emoji: "🍲", accentColor: "160 45% 55%" },
+  Breakfast: { emoji: "🫓", accentColor: "10 80% 65%" },
+  Lunch: { emoji: "🍛", accentColor: "270 50% 65%" },
+  Dinner: { emoji: "🍚", accentColor: "160 45% 55%" },
 };
 
 export default function Home() {
@@ -28,6 +28,10 @@ export default function Home() {
   const { data: allNames = [] } = useQuery<string[]>({
     queryKey: ["/api/preset-names"],
   });
+
+  // Heart interaction state must be declared before any early returns
+  const [heartBroken, setHeartBroken] = useState(false);
+  const [heartHasTriggered, setHeartHasTriggered] = useState(false);
 
   const voteMutation = useMutation({
     mutationFn: async (vote: Vote) =>
@@ -91,8 +95,33 @@ export default function Home() {
     );
   }
 
+  // removed motion variants to prevent render issues
+
+  const title = "HostelBites";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-cyan-100 dark:from-[hsl(280,35%,12%)] dark:to-[hsl(260,40%,8%)] p-6 animate-gradient">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-cyan-100 dark:from-[hsl(280,35%,12%)] dark:to-[hsl(260,40%,8%)] p-6">
+      {/* Floating petals overlay */}
+      <div className="petals" aria-hidden>
+        <span className="petal" style={{ left: "8%", top: "22%" }}>🌸</span>
+        <span className="petal" style={{ left: "16%", top: "68%", animationDelay: "0.6s" }}>🌼</span>
+        <span className="petal" style={{ left: "28%", top: "32%", animationDelay: "0.3s" }}>🌺</span>
+        <span className="petal" style={{ left: "40%", top: "75%", animationDelay: "1.0s" }}>🌸</span>
+        <span className="petal" style={{ left: "52%", top: "18%", animationDelay: "0.2s" }}>🌼</span>
+        <span className="petal" style={{ left: "64%", top: "58%", animationDelay: "1.2s" }}>🌺</span>
+        <span className="petal" style={{ left: "76%", top: "28%", animationDelay: "0.4s" }}>🌸</span>
+        <span className="petal" style={{ left: "88%", top: "62%", animationDelay: "1.4s" }}>🌼</span>
+      </div>
+      {/* Stars overlay */}
+      <div className="stars" aria-hidden>
+        <span className="star" style={{ left: "12%", top: "18%" }} />
+        <span className="star" style={{ left: "22%", top: "66%", animationDelay: ".8s" }} />
+        <span className="star" style={{ left: "34%", top: "26%", animationDelay: ".3s" }} />
+        <span className="star" style={{ left: "48%", top: "72%", animationDelay: "1.1s" }} />
+        <span className="star" style={{ left: "62%", top: "22%", animationDelay: ".2s" }} />
+        <span className="star" style={{ left: "74%", top: "60%", animationDelay: "1.3s" }} />
+        <span className="star" style={{ left: "86%", top: "30%", animationDelay: ".5s" }} />
+      </div>
       <TutorialModal />
       <ManageNamesModal open={showManageNames} onOpenChange={setShowManageNames} />
       
@@ -100,8 +129,30 @@ export default function Home() {
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-5xl font-bold tracking-tight flex items-center justify-center gap-3" data-testid="text-app-title">
-            <span>HostelBites</span>
-            <span>💖</span>
+            <span className="title-shimmer">HostelBites</span>
+            <span
+              role="img"
+              aria-label="heart"
+              className="select-none cursor-pointer"
+              onClick={() => {
+                const layer = document.createElement('div');
+                layer.className = 'heart-shower';
+                document.body.appendChild(layer);
+                const rect = document.body.getBoundingClientRect();
+                for (let i = 0; i < 24; i++) {
+                  const s = document.createElement('span');
+                  s.className = 'heart';
+                  s.textContent = Math.random() > 0.5 ? '💖' : '💗';
+                  s.style.left = `${Math.random() * rect.width}px`;
+                  s.style.top = `${Math.random() * rect.height}px`;
+                  s.style.animationDelay = `${Math.random() * 0.6}s`;
+                  layer.appendChild(s);
+                }
+                setTimeout(() => layer.remove(), 2200);
+              }}
+            >
+              💖
+            </span>
           </h1>
           <p className="text-muted-foreground text-lg">
             Track your daily meal attendance
@@ -115,7 +166,7 @@ export default function Home() {
             size="sm"
             onClick={() => setShowManageNames(true)}
             data-testid="button-manage-names"
-            className="font-semibold"
+            className="font-semibold pop-hover"
           >
             <Users className="w-4 h-4 mr-2" />
             Manage Names
@@ -125,6 +176,7 @@ export default function Home() {
             size="sm"
             onClick={handleExportCSV}
             data-testid="button-export-csv"
+            className="pop-hover"
           >
             <Download className="w-4 h-4 mr-2" />
             Export CSV
@@ -134,6 +186,7 @@ export default function Home() {
             size="sm"
             onClick={handleBackupFiles}
             data-testid="button-backup-files"
+            className="pop-hover"
           >
             <FileDown className="w-4 h-4 mr-2" />
             Backup Files
@@ -141,9 +194,15 @@ export default function Home() {
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => resetAllMutation.mutate()}
+            onClick={() => {
+              const pwd = window.prompt('Enter reset password');
+              if (pwd === '88856') {
+                resetAllMutation.mutate();
+              }
+            }}
             disabled={resetAllMutation.isPending}
             data-testid="button-reset-all"
+            className="pop-hover"
           >
             Reset All
           </Button>
@@ -161,7 +220,12 @@ export default function Home() {
               allNames={allNames}
               accentColor={mealConfig[meal].accentColor}
               onVote={(name) => voteMutation.mutate({ name, meal })}
-              onReset={() => resetMealMutation.mutate(meal)}
+              onReset={() => {
+                const pwd = window.prompt('Enter reset password');
+                if (pwd === '88856') {
+                  resetMealMutation.mutate(meal);
+                }
+              }}
               isVoting={voteMutation.isPending}
             />
           ))}
@@ -197,9 +261,7 @@ export default function Home() {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-sm text-muted-foreground">
-          Made with 💖 for your hostel community
-        </p>
+        <p className="text-center text-sm text-muted-foreground">Made with 💖 for your hostel community</p>
       </div>
     </div>
   );

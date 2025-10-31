@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -60,18 +61,20 @@ export function MealCard({
     : allNames;
 
   return (
-    <Card 
-      className="overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
-      style={{
-        background: `linear-gradient(135deg, hsl(${accentColor}) 0%, hsl(${accentColor} / 0.1) 100%)`,
-        backdropFilter: "blur(6px)",
-      }}
-      data-testid={`card-meal-${meal.toLowerCase()}`}
-    >
+    <motion.div initial={{ opacity: 0, y: 26, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: "spring", stiffness: 260, damping: 22 }} whileHover={{ y: -10, scale: 1.01 }}>
+      <Card 
+        className="overflow-hidden transition-all duration-300 hover:shadow-xl"
+        style={{
+          background: `linear-gradient(135deg, hsl(${accentColor}) 0%, hsl(${accentColor} / 0.1) 100%)`,
+          backdropFilter: "blur(6px)",
+        }}
+        data-testid={`card-meal-${meal.toLowerCase()}`}
+      >
+        {/* Chef mascot removed as requested */}
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-4xl">{emoji}</span>
+            <div className="flex items-center gap-2">
+              <motion.span className="text-4xl inline-block" animate={{ y: [0, -2, 0, 2, 0], rotate: [0, -4, 0, 4, 0] }} transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}>{emoji}</motion.span>
             <h2 className="text-xl font-semibold" data-testid={`text-meal-name-${meal.toLowerCase()}`}>
               {meal}
             </h2>
@@ -87,11 +90,21 @@ export function MealCard({
           </Button>
         </div>
         
-        <div className="mt-4 space-y-2">
-          <div className="flex items-baseline justify-between">
-            <span className="text-4xl font-bold tabular-nums" data-testid={`text-eaten-count-${meal.toLowerCase()}`}>
-              {eaten.length}
-            </span>
+          <div className="mt-4 space-y-2">
+            <div className="flex items-baseline justify-between">
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.span
+                key={eaten.length}
+                className="text-4xl font-bold tabular-nums"
+                data-testid={`text-eaten-count-${meal.toLowerCase()}`}
+                initial={{ y: 8, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -8, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 22 }}
+              >
+                {eaten.length}
+              </motion.span>
+            </AnimatePresence>
             <span className="text-sm text-muted-foreground">
               {notEaten.length} yet to eat
             </span>
@@ -122,6 +135,9 @@ export function MealCard({
             }}
             className="w-full"
             data-testid={`input-name-search-${meal.toLowerCase()}`}
+              inputMode="text"
+              autoCapitalize="words"
+              autoComplete="name"
           />
           <datalist id={`names-${meal}`}>
             {filteredNames.map((name) => (
@@ -129,14 +145,17 @@ export function MealCard({
             ))}
           </datalist>
           
-          <Button
-            onClick={handleVote}
-            disabled={!selectedName || isVoting || eaten.includes(selectedName)}
-            className="w-full"
-            data-testid={`button-vote-${meal.toLowerCase()}`}
-          >
-            {eaten.includes(selectedName) ? "Already voted!" : "I've eaten"}
-          </Button>
+          <motion.div whileTap={{ scale: 0.98 }} whileHover={{ scale: 1.01 }} className="w-full">
+            <Button
+              onClick={handleVote}
+              disabled={!selectedName || isVoting || eaten.includes(selectedName)}
+              className="w-full flex items-center justify-center gap-2"
+              data-testid={`button-vote-${meal.toLowerCase()}`}
+            >
+              <motion.span aria-hidden animate={{ scale: [1, 1.12, 1], rotate: [0, 8, 0] }} transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}>👋</motion.span>
+              {eaten.includes(selectedName) ? "Already voted!" : "I've eaten"}
+            </Button>
+          </motion.div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -147,16 +166,19 @@ export function MealCard({
                 {eaten.length === 0 ? (
                   <p className="text-xs text-muted-foreground">No one yet</p>
                 ) : (
-                  eaten.map((name) => (
-                    <Badge 
-                      key={name} 
-                      variant="secondary" 
-                      className="mr-1 mb-1 text-xs"
-                      data-testid={`badge-eaten-${name}`}
-                    >
-                      {name}
-                    </Badge>
-                  ))
+                  <AnimatePresence initial={false}>
+                    {eaten.map((name) => (
+                      <motion.div key={name} layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }} className="inline-block">
+                        <Badge 
+                          variant="secondary" 
+                          className="mr-1 mb-1 text-xs"
+                          data-testid={`badge-eaten-${name}`}
+                        >
+                          {name}
+                        </Badge>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 )}
               </div>
             </ScrollArea>
@@ -169,22 +191,26 @@ export function MealCard({
                 {notEaten.length === 0 ? (
                   <p className="text-xs text-muted-foreground">Everyone ate!</p>
                 ) : (
-                  notEaten.map((name) => (
-                    <Badge 
-                      key={name} 
-                      variant="outline" 
-                      className="mr-1 mb-1 text-xs"
-                      data-testid={`badge-not-eaten-${name}`}
-                    >
-                      {name}
-                    </Badge>
-                  ))
+                  <AnimatePresence initial={false}>
+                    {notEaten.map((name) => (
+                      <motion.div key={name} layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }} className="inline-block">
+                        <Badge 
+                          variant="outline" 
+                          className="mr-1 mb-1 text-xs"
+                          data-testid={`badge-not-eaten-${name}`}
+                        >
+                          {name}
+                        </Badge>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
                 )}
               </div>
             </ScrollArea>
           </div>
         </div>
       </CardContent>
-    </Card>
+      </Card>
+    </motion.div>
   );
 }
