@@ -12,6 +12,12 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  // Static preview mode for Netlify (no backend). Mutations are no-ops.
+  if (import.meta.env.VITE_STATIC_PREVIEW === "true") {
+    const body = JSON.stringify({ ok: true, preview: true });
+    return new Response(body, { status: 200, headers: { "Content-Type": "application/json" } });
+  }
+
   const res = await fetch(url, {
     method,
     headers: {
@@ -34,7 +40,28 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey.join("/") as string, {
+    const path = queryKey.join("/") as string;
+
+    // Static preview mode: provide client-only mock data so the UI loads on Netlify
+    if (import.meta.env.VITE_STATIC_PREVIEW === "true") {
+      if (path.startsWith("/api/status")) {
+        const mock = {
+          meals: {
+            Breakfast: { eaten: [], notEaten: [], eatenCount: 0, notEatenCount: 0 },
+            Lunch: { eaten: [], notEaten: [], eatenCount: 0, notEatenCount: 0 },
+            Dinner: { eaten: [], notEaten: [], eatenCount: 0, notEatenCount: 0 },
+          },
+          expectedCount: 0,
+        } as any;
+        return mock as any;
+      }
+      if (path.startsWith("/api/preset-names")) {
+        return [] as any;
+      }
+      return null as any;
+    }
+
+    const res = await fetch(path, {
       credentials: "include",
       cache: "no-store",
       headers: {
